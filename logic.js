@@ -1,3 +1,3 @@
 /**
- * vacio de momento :v
+ * vacio de momento :v, por ahora
  */

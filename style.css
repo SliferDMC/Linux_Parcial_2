@@ -1,4 +1,32 @@
-/* 
- * Vacio de momento
- */
+h1  {
+    margin: 0;
+    text-align: center;
+    padding: 0.1em 0;
+    background-color: #eeeeee;
+}
+
+#consola {
+    border-radius: 25px;
+    border: 2px solid #000000;
+    padding: 20px; 
+    height: 225px;   
+    overflow:auto; 
+    background-color: #000000;
+    color: #00FF00;
+    font-family: monospace;
+    display: inline-block; 
+    text-align: left; 
+    width:77%;
+    font-size: 12px;
+}
+
+
+input {
+    border: none;
+    outline: none;
+    background-color: #000000;
+    color: #00FF00;
+    font-family: monospace;
+    font-size: 12px;
+}
 

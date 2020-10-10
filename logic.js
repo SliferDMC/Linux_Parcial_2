@@ -115,7 +115,7 @@ class file{
   }
 }
 
-let users1 = [new User("daniel"),new User("miguel"),new User("juan"),new User("pedro")];
+var users1 = [new User("daniel"),new User("miguel"),new User("juan"),new User("pedro")];
 let users2 = [new User("pablo"),new User("pacho"),new User("simon"),new User("roberto")];
 let users3 = [new User("jose"),new User("ana"),new User("maria"),new User("abigail")];
 let users4 = [new User("nero"),new User("dante"),new User("vergil"),new User("trist")];
@@ -153,6 +153,10 @@ let mach2 = new Machine("machine2", "192.168.0.2", files2, users2, group2)
 let mach3 = new Machine("machine3", "192.168.0.3", files3, users3, group3)
 let mach4 = new Machine("machine4", "192.168.0.4", files4, users4, group4)
 
+//------------------------------------------------------------------------------------------------------------------//
+var userLogged="puto";
+var rootUser=false;
+
 console.log(mach1)
 console.log(group1)
 function limpiarConsola() 
@@ -180,7 +184,7 @@ function procesarEntrada( e )
 function procesarComando ( comando )
 {
 	var comandoParametros = comando.value.split(" ");
-
+    
 	addConsola ( "Ejecutando : " + comandoParametros[0] + "<br>" );
 
 	for (var i =1 ; i<comandoParametros.length ; i++ )
@@ -188,7 +192,9 @@ function procesarComando ( comando )
 		addConsola ( "Parametro "+ i + ": " + comandoParametros[i] + "<br>" );
 	}
 
-	addConsola ( "<p>" );
+    verificarComandos(comandoParametros);
+
+    addConsola ( "<p>" )
 		
 	if ( comandoParametros[0] == "clear" ) 
 	{
@@ -201,3 +207,49 @@ function procesarComando ( comando )
 }
 
 
+function verificarComandos (parametros){
+    if(userLogged!=""){
+        switch (parametros[0]){
+            case "sudo": addConsola (" el comando usado es sudo <br>");    
+            break;
+            case "logout":  cerrarUsuario(parametros);   
+            break;
+            case "login":  addConsola ("ya esta registrado con el usuario: "+userLogged+" <br>");   
+            break;
+            default: addConsola ("no se reconoce el comando <br>");
+        }
+    }else{
+        if(parametros[0]=="login"){
+               iniciarUsuario(parametros);
+        }else{
+            addConsola ("Primero debe identificarse, pruebe utilizando: login (usuario)");
+		}
+	}
+}
+
+function iniciarUsuario (parametros){ 
+    if(parametros.length==2){
+        for(var i =0 ; i<this.users1.length ; i++){
+             if(this.users1[i].getName==parametros[1]){
+                this.userLogged=parametros[1];
+                addConsola ("bienvenido "+parametros[1]+"<br>");  
+                i=this.users1.length;
+			 }
+		}
+        if(userLogged==""){
+            addConsola ("no se encuentra el usuario "+parametros[1]+", compruebe si el nombre es correcto");
+        }
+	}else{
+        addConsola ("la cantidad de parametros no coincide con el comando login. pruebe utilizando: login (usuario)"+"<br>");
+	}   
+}
+
+
+function cerrarUsuario (parametros){
+    if(parametros.length==1){
+        addConsola ("hasta la proxima "+userLogged+"<br>");
+        userLogged="";
+	}else{
+        addConsola ("la cantidad de parametros no coincide con el comando logout. pruebe utilizando: logout"+"<br>");
+	}   
+}

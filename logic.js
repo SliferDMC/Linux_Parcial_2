@@ -130,14 +130,14 @@ var users2 = [new User("pablo"),new User("pacho"),new User("simon"),new User("ro
 var users3 = [new User("jose"),new User("ana"),new User("maria"),new User("abigail")];
 var users4 = [new User("nero"),new User("dante"),new User("vergil"),new User("trist")];
 
-var files1 = [new file("file1", "-rw-r-----", "daniel"), new file("file2", "-rw-r-----", "miguel"),
-              new file("file3", "-rw-r-----", "juan"), new file("file4", "-rw-r-----", "pedro")]
-var files2 = [new file("file1", "-rw-r-----", "pablo"), new file("file2", "-rw-r-----", "pacho"), 
-              new file("file3", "-rw-r-----", "simon"), new file("file4", "-rw-r-----", "roberto")]
-var files3 = [new file("file1", "-rw-r-----", "jose"), new file("file2", "-rw-r-----", "ana"), 
-              new file("file3", "-rw-r-----", "maria"), new file("file4", "-rw-r-----", "abigail")]
-var files4 = [new file("file1", "-rw-r-----", "nero"), new file("file2", "-rw-r-----", "dante"), 
-              new file("file3", "-rw-r-----", "vergil"), new file("file4", "-rw-r-----", "trist")]
+var files1 = [new file("file1", "-rw-r-----", "daniel", "daniel", crearFechaActual()), new file("file2", "-rw-r-----", "miguel", "miguel", crearFechaActual()),
+              new file("file3", "-rw-r-----", "juan", "juan", crearFechaActual()), new file("file4", "-rw-r-----", "pedro", "pedro", crearFechaActual())]
+var files2 = [new file("file1", "-rw-r-----", "pablo", "pablo", crearFechaActual()), new file("file2", "-rw-r-----", "pacho", "pacho", crearFechaActual()), 
+              new file("file3", "-rw-r-----", "simon", "simon", crearFechaActual()), new file("file4", "-rw-r-----", "roberto", "roberto", crearFechaActual())]
+var files3 = [new file("file1", "-rw-r-----", "jose", "jose", crearFechaActual()), new file("file2", "-rw-r-----", "ana", "ana", crearFechaActual()), 
+              new file("file3", "-rw-r-----", "maria", "maria", crearFechaActual()), new file("file4", "-rw-r-----", "abigail", "abigail", crearFechaActual())]
+var files4 = [new file("file1", "-rw-r-----", "nero", "nero", crearFechaActual()), new file("file2", "-rw-r-----", "dante", "dante", crearFechaActual()), 
+              new file("file3", "-rw-r-----", "vergil", "vergil", crearFechaActual()), new file("file4", "-rw-r-----", "trist", "trist", crearFechaActual())]
 
 var group1 = []
 var group2 = []
@@ -226,6 +226,7 @@ function verificarComandos (parametros){
             case "login":  addConsola ("ya esta registrado con el usuario: "+userLogged+" <br>");   
             break;
             case "touch": crearArchivo(parametros)
+            console.log(currentMachine.getDirectory)
             break;
             case "ls":  mostrarArchivos(parametros);   
             break;
@@ -270,12 +271,69 @@ function crearArchivo(parametros){
   if (parametros.length!=2) {
     addConsola ("la cantidad de parametros no coincide con el comando touch. pruebe utilizando: touch (nombre)"+"<br>");
   } else {
+
+    let bool = false
+    let fileAux
+    let pos
+    for (let i = 0; i < currentMachine.getDirectory.length; i++) {
+      if (currentMachine.getDirectory[i].getName == parametros[1]) {
+        bool = true
+        fileAux = currentMachine.getDirectory[i]
+        pos = i
+      }  
+    }
+
+    if (bool) {
+      if (comprobarPermisoDeEscritura(fileAux)) {
+        let f1 = new file(parametros[1], "-rw-r-----", userLogged, userLogged, crearFechaActual())
+        currentMachine.getDirectory[pos] = f1
+      } else {
+        addConsola ("El usuario "+ userLogged +" no posee permisos de escritura sobre el archivo."+"<br>");
+      }
+    } else {
+      let f2 = new file(parametros[1], "-rw-r-----", userLogged, userLogged, crearFechaActual())
+      currentMachine.getDirectory.push(f2)
+    }
+
+  }
+}
+
+function crearFechaActual(){
+  let currentDate = ""
+  let date  = new Date()
+  currentDate += date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear()
+  return currentDate
+}
+
+function buscarGrupoDeUsuario(name){
+  let g = ""
     for (let i = 0; i < currentMachine.getGroups.length; i++) {
       
-      
-    }
-    let f = new file(parametros[1], "-rw-r-----", userLogged, )
+      let aux = currentMachine.getGroups[i];
 
+      if (aux.getMembers.includes(name) && aux.getName!=name) {
+        g = aux.getName
+        break
+      }
+    }
+  return g
+}
+
+function comprobarPermisoDeEscritura(file){
+  if (file.getOwner == userLogged) {
+    if (file.getPermits.charAt(2) == 'w') {
+      return true
+    }
+  }
+  if (file.getGroup == buscarGrupoDeUsuario(userLogged)) {
+    if (file.getPermits.charAt(5) == 'w') {
+      return true
+    }
+  }
+  if (file.getOwner != userLogged && file.getGroup != buscarGrupoDeUsuario(userLogged)) {
+    if (file.getPermits.charAt(8) == 'w') {
+      return true
+    }
   }
 }
 

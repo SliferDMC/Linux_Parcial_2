@@ -187,7 +187,11 @@ function verificarComandos (parametros){
             case "touch": crearArchivo(parametros)
             console.log(currentMachine.getDirectory)
             break;
-            case "ls":  mostrarArchivos(parametros);   
+            case "ls": mostrarArchivos(parametros);   
+            break;
+            case "cat": leerContenido(parametros);   
+            break;
+            case "nano": escribirContenido(parametros);   
             break;
             default: addConsola ("no se reconoce el comando "+parametros[0]+"<br>");
         }
@@ -245,7 +249,7 @@ function crearArchivo(parametros){
     }
 
     if (bool) {
-      if (comprobarPermisoDeEscritura(fileAux)) {
+      if (comprobarPermiso(fileAux, 'w')) {
         let f1 = new file(parametros[1], "-rw-r-----", userLogged, userLogged, crearFechaActual())
         currentMachine.getDirectory[pos] = f1
       } else {
@@ -280,19 +284,28 @@ function buscarGrupoDeUsuario(name){
   return g
 }
 
-function comprobarPermisoDeEscritura(file){
+function comprobarPermiso(file, permiso){
+  let p1, p2, p3
+  if(permiso == 'r') {
+    p1 = 1, p2 = 4, p3 = 7
+  } else if (permiso == 'w') {
+    p1 = 2, p2 = 5, p3 = 8
+  } else {
+    p1 = 3, p2 = 6, p3 = 9
+  }
+
   if (file.getOwner == userLogged) {
-    if (file.getPermits.charAt(2) == 'w') {
+    if (file.getPermits.charAt(p1) == permiso) {
       return true
     }
   }
   if (file.getGroup == buscarGrupoDeUsuario(userLogged)) {
-    if (file.getPermits.charAt(5) == 'w') {
+    if (file.getPermits.charAt(p2) == permiso) {
       return true
     }
   }
   if (file.getOwner != userLogged && file.getGroup != buscarGrupoDeUsuario(userLogged)) {
-    if (file.getPermits.charAt(8) == 'w') {
+    if (file.getPermits.charAt(p3) == permiso) {
       return true
     }
   }
@@ -325,4 +338,35 @@ function mostrarArchivos (parametros){
 	}else{
         addConsola ("la cantidad de parametros no coincide con el comando ls. pruebe utilizando: ls O utilizando: ls -l"+"<br>");
 	}     
+}
+
+function leerContenido(parametros){
+  for (let i = 0; i < currentMachine.getDirectory.length; i++) {
+    if (currentMachine.getDirectory[i].getName == parametros[1]) {
+      let fileAux = currentMachine.getDirectory[i]
+      if (comprobarPermiso(fileAux, 'r')) {
+        addConsola ("Leyendo el contenido del archivo "+fileAux.getName+"<br>");
+      } else {
+        addConsola ("Usted no posee permisos de lectura del archivo "+fileAux.getName+"<br>");
+      }
+      return
+    } 
+  }
+  addConsola ("El archivo solicitado no se encuentra en el disco, por favor verifique el nombre"+"<br>");
+   
+}
+
+function escribirContenido(parametros){
+  for (let i = 0; i < currentMachine.getDirectory.length; i++) {
+    if (currentMachine.getDirectory[i].getName == parametros[1]) {
+      let fileAux = currentMachine.getDirectory[i]
+      if (comprobarPermiso(fileAux, 'w')) {
+        addConsola ("Escribiendo en el archivo "+fileAux.getName+"<br>");
+      } else {
+        addConsola ("Usted no posee permisos de escritura del archivo "+fileAux.getName+"<br>");
+      }
+      return
+    }
+  }
+  addConsola ("El archivo solicitado no se encuentra en el disco, por favor verifique el nombre"+"<br>");
 }

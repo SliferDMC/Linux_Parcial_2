@@ -227,13 +227,9 @@ function verificarComandos (parametros){
             break;
             case "touch": crearArchivo(parametros)
             break;
-<<<<<<< HEAD
             case "ls":  mostrarArchivos(parametros);   
             break;
             default: addConsola ("no se reconoce el comando "+parametros[0]+"<br>");
-=======
-            default: addConsola ("no se reconoce el comando <br>");
->>>>>>> e4138a3c5dcd24777698f8392bc27e2b3bf563ab
         }
     }else{
         if(parametros[0]=="login"){
@@ -281,7 +277,6 @@ function crearArchivo(parametros){
     let f = new file(parametros[1], "-rw-r-----", userLogged, )
 
   }
-<<<<<<< HEAD
 }
 
 function mostrarArchivos (parametros){
@@ -312,6 +307,3 @@ function mostrarArchivos (parametros){
         addConsola ("la cantidad de parametros no coincide con el comando ls. pruebe utilizando: ls O utilizando: ls -l"+"<br>");
 	}     
 }
-=======
-}
->>>>>>> e4138a3c5dcd24777698f8392bc27e2b3bf563ab

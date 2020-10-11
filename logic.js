@@ -96,10 +96,12 @@ class Group{
 }
 
 class file{
-  constructor(name, permits, owner){
+  constructor(name, permits, owner, group, date){
     this.name = name
     this.permits = permits
     this.owner = owner
+    this.group = group
+    this.date = date
   }
 
   get getName(){
@@ -113,26 +115,34 @@ class file{
   get getOwner(){
     return this.owner
   }
+
+  get getGroup(){
+    return this.group
+  }
+
+  get getDate(){
+    return this.date
+  }
 }
 
 var users1 = [new User("daniel"),new User("miguel"),new User("juan"),new User("pedro")];
-let users2 = [new User("pablo"),new User("pacho"),new User("simon"),new User("roberto")];
-let users3 = [new User("jose"),new User("ana"),new User("maria"),new User("abigail")];
-let users4 = [new User("nero"),new User("dante"),new User("vergil"),new User("trist")];
+var users2 = [new User("pablo"),new User("pacho"),new User("simon"),new User("roberto")];
+var users3 = [new User("jose"),new User("ana"),new User("maria"),new User("abigail")];
+var users4 = [new User("nero"),new User("dante"),new User("vergil"),new User("trist")];
 
-let files1 = [new file("file1", "-rw-r-----", "daniel"), new file("file2", "-rw-r-----", "miguel"),
+var files1 = [new file("file1", "-rw-r-----", "daniel"), new file("file2", "-rw-r-----", "miguel"),
               new file("file3", "-rw-r-----", "juan"), new file("file4", "-rw-r-----", "pedro")]
-let files2 = [new file("file1", "-rw-r-----", "pablo"), new file("file2", "-rw-r-----", "pacho"), 
+var files2 = [new file("file1", "-rw-r-----", "pablo"), new file("file2", "-rw-r-----", "pacho"), 
               new file("file3", "-rw-r-----", "simon"), new file("file4", "-rw-r-----", "roberto")]
-let files3 = [new file("file1", "-rw-r-----", "jose"), new file("file2", "-rw-r-----", "ana"), 
+var files3 = [new file("file1", "-rw-r-----", "jose"), new file("file2", "-rw-r-----", "ana"), 
               new file("file3", "-rw-r-----", "maria"), new file("file4", "-rw-r-----", "abigail")]
-let files4 = [new file("file1", "-rw-r-----", "nero"), new file("file2", "-rw-r-----", "dante"), 
+var files4 = [new file("file1", "-rw-r-----", "nero"), new file("file2", "-rw-r-----", "dante"), 
               new file("file3", "-rw-r-----", "vergil"), new file("file4", "-rw-r-----", "trist")]
 
-let group1 = []
-let group2 = []
-let group3 = []
-let group4 = []
+var group1 = []
+var group2 = []
+var group3 = []
+var group4 = []
 for (let index = 0; index < users1.length; index++) {
   group1.push(new Group(users1[index].getName, [users1[index].getName]))
   group2.push(new Group(users2[index].getName, [users2[index].getName]))
@@ -148,17 +158,16 @@ group3.push(new Group("HewlettPackard", ["maria","abigail"]))
 group4.push(new Group("DMC", ["nero", "dante"]))
 group4.push(new Group("DMCED", ["vergil","trist"]))
 
-let mach1 = new Machine("machine1", "192.168.0.1", files1, users1, group1)
-let mach2 = new Machine("machine2", "192.168.0.2", files2, users2, group2)
-let mach3 = new Machine("machine3", "192.168.0.3", files3, users3, group3)
-let mach4 = new Machine("machine4", "192.168.0.4", files4, users4, group4)
+var mach1 = new Machine("machine1", "192.168.0.1", files1, users1, group1)
+var mach2 = new Machine("machine2", "192.168.0.2", files2, users2, group2)
+var mach3 = new Machine("machine3", "192.168.0.3", files3, users3, group3)
+var mach4 = new Machine("machine4", "192.168.0.4", files4, users4, group4)
 
 //------------------------------------------------------------------------------------------------------------------//
 var userLogged="";
 var rootUser=false;
+var currentMachine=mach1
 
-console.log(mach1)
-console.log(group1)
 function limpiarConsola() 
 {
   document.getElementById( "textoImprimir" ).innerHTML = ""
@@ -216,7 +225,11 @@ function verificarComandos (parametros){
             break;
             case "login":  addConsola ("ya esta registrado con el usuario: "+userLogged+" <br>");   
             break;
-            default: addConsola ("no se reconoce el comando <br>");
+            case "touch": crearArchivo(parametros)
+            break;
+            case "ls":  mostrarArchivos(parametros);   
+            break;
+            default: addConsola ("no se reconoce el comando "+parametros[0]+"<br>");
         }
     }else{
         if(parametros[0]=="login"){
@@ -234,7 +247,7 @@ function iniciarUsuario (parametros){
                 this.userLogged=parametros[1];
                 addConsola ("bienvenido "+parametros[1]+"<br>");  
                 i=this.users1.length;
-			 }
+			      }
 		}
         if(userLogged==""){
             addConsola ("no se encuentra el usuario "+parametros[1]+", compruebe si el nombre es correcto");
@@ -244,7 +257,6 @@ function iniciarUsuario (parametros){
 	}   
 }
 
-
 function cerrarUsuario (parametros){
     if(parametros.length==1){
         addConsola ("hasta la proxima "+userLogged+"<br>");
@@ -252,4 +264,46 @@ function cerrarUsuario (parametros){
 	}else{
         addConsola ("la cantidad de parametros no coincide con el comando logout. pruebe utilizando: logout"+"<br>");
 	}   
+}
+
+function crearArchivo(parametros){
+  if (parametros.length!=2) {
+    addConsola ("la cantidad de parametros no coincide con el comando touch. pruebe utilizando: touch (nombre)"+"<br>");
+  } else {
+    for (let i = 0; i < currentMachine.getGroups.length; i++) {
+      
+      
+    }
+    let f = new file(parametros[1], "-rw-r-----", userLogged, )
+
+  }
+}
+
+function mostrarArchivos (parametros){
+    if(parametros.length==1){
+        if(this.files1.length==0){
+             addConsola ("no hay archivos a mostrar");
+		}else{
+            for(var i =0 ; i<this.files1.length ; i++){
+                addConsola (files1[i].getName+" ");
+		    }
+		}
+        addConsola (" "+"<br>");
+	}else if(parametros.length==2){
+        if(parametros[1]=="-l"){
+            if(this.files1.length==0){
+                addConsola ("no hay archivos a mostrar");
+		    }else{
+                for(var i =0 ; i<this.files1.length ; i++){
+                    addConsola (files1[i].getPermits+" "+files1[i].getDate+" "+files1[i].getGroup+" "+
+                                files1[i].getOwner+" "+files1[i].getName+"<br>");
+		        }
+		    }
+            addConsola (" "+"<br>");   
+		}else{
+            addConsola ("no se reconoce el parametro "+parametros[1]+". intente con: ls -l O utilizando: ls "+"<br>");
+		}
+	}else{
+        addConsola ("la cantidad de parametros no coincide con el comando ls. pruebe utilizando: ls O utilizando: ls -l"+"<br>");
+	}     
 }

@@ -154,7 +154,7 @@ let mach3 = new Machine("machine3", "192.168.0.3", files3, users3, group3)
 let mach4 = new Machine("machine4", "192.168.0.4", files4, users4, group4)
 
 //------------------------------------------------------------------------------------------------------------------//
-var userLogged="puto";
+var userLogged="";
 var rootUser=false;
 
 console.log(mach1)

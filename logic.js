@@ -221,9 +221,9 @@ function verificarComandos (parametros){
         switch (parametros[0]){
             case "sudo": addConsola (" el comando usado es sudo <br>");    
             break;
-            case "logout":  cerrarUsuario(parametros);   
+            case "logout":  cerrarUsuario(parametros); 
             break;
-            case "login":  addConsola ("ya esta registrado con el usuario: "+userLogged+" <br>");   
+            case "login":  addConsola ("ya esta registrado con el usuario: "+userLogged+" <br>");
             break;
             case "touch": crearArchivo(parametros)
             console.log(currentMachine.getDirectory)
@@ -246,7 +246,8 @@ function iniciarUsuario (parametros){
         for(var i =0 ; i<this.users1.length ; i++){
              if(this.users1[i].getName==parametros[1]){
                 this.userLogged=parametros[1];
-                addConsola ("bienvenido "+parametros[1]+"<br>");  
+                addConsola ("bienvenido "+parametros[1]+"<br>"); 
+                document.getElementById("prompt").innerHTML = parametros[1]+"@"+currentMachine.getName
                 i=this.users1.length;
 			      }
 		}
@@ -261,6 +262,7 @@ function iniciarUsuario (parametros){
 function cerrarUsuario (parametros){
     if(parametros.length==1){
         addConsola ("hasta la proxima "+userLogged+"<br>");
+        document.getElementById("prompt").innerHTML = ""
         userLogged="";
 	}else{
         addConsola ("la cantidad de parametros no coincide con el comando logout. pruebe utilizando: logout"+"<br>");

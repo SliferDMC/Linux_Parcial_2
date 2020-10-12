@@ -82,6 +82,14 @@ class file{
   get getDate(){
     return this.date
   }
+
+  set setGroup(group){
+    this.group = group
+  }
+
+  set setOwner(owner){
+    this.owner = owner
+  }
 }
 
 var users1 = [new User("daniel"),new User("miguel"),new User("juan"),new User("pedro")];
@@ -178,8 +186,9 @@ function procesarComando ( comando )
 function verificarComandos (parametros){
     if(userLogged!=""){
         switch (parametros[0]){
-            case "sudo": addConsola (" el comando usado es sudo <br>");    
+            case "sudo": comandoSudo(parametros);
             break;
+            case "chown": addConsola (" para usara el comando chown necesita el uso de sudo: sudo chown (nombre):(grupo archivo) <br>");    
             case "logout":  cerrarUsuario(parametros); 
             break;
             case "login":  addConsola ("ya esta registrado con el usuario: "+userLogged+" <br>");
@@ -192,6 +201,8 @@ function verificarComandos (parametros){
             case "cat": leerContenido(parametros);   
             break;
             case "nano": escribirContenido(parametros);   
+            break;
+            case "rm": borrarContenido(parametros);
             break;
             default: addConsola ("no se reconoce el comando "+parametros[0]+"<br>");
         }
@@ -206,15 +217,11 @@ function verificarComandos (parametros){
 
 function iniciarUsuario (parametros){ 
     if(parametros.length==2){
-        for(var i =0 ; i<this.users1.length ; i++){
-             if(this.users1[i].getName==parametros[1]){
-                this.userLogged=parametros[1];
-                addConsola ("bienvenido "+parametros[1]+"<br>"); 
-                document.getElementById("prompt").innerHTML = parametros[1]+"@"+currentMachine.getName
-                i=this.users1.length;
-			      }
-		}
-        if(userLogged==""){
+        if(buscarUsuario(parametros[1])){
+            this.userLogged=parametros[1];
+            addConsola ("bienvenido "+parametros[1]+"<br>"); 
+            document.getElementById("prompt").innerHTML = parametros[1]+"@"+currentMachine.getName;
+		}else{
             addConsola ("no se encuentra el usuario "+parametros[1]+", compruebe si el nombre es correcto");
         }
 	}else{
@@ -313,22 +320,23 @@ function comprobarPermiso(file, permiso){
 
 function mostrarArchivos (parametros){
     if(parametros.length==1){
-        if(this.files1.length==0){
+        if(this.currentMachine.getDirectory.length==0){
              addConsola ("no hay archivos a mostrar");
 		}else{
-            for(var i =0 ; i<this.files1.length ; i++){
-                addConsola (files1[i].getName+" ");
+            for(var i =0 ; i<this.currentMachine.getDirectory.length ; i++){
+                addConsola (currentMachine.getDirectory[i].getName+" ");
 		    }
 		}
         addConsola (" "+"<br>");
 	}else if(parametros.length==2){
         if(parametros[1]=="-l"){
-            if(this.files1.length==0){
+            if(this.currentMachine.getDirectory.length==0){
                 addConsola ("no hay archivos a mostrar");
 		    }else{
-                for(var i =0 ; i<this.files1.length ; i++){
-                    addConsola (files1[i].getPermits+" "+files1[i].getDate+" "+files1[i].getGroup+" "+
-                                files1[i].getOwner+" "+files1[i].getName+"<br>");
+                for(var i =0 ; i<this.currentMachine.getDirectory.length ; i++){
+                    addConsola (currentMachine.getDirectory[i].getPermits+" "+currentMachine.getDirectory[i].getDate+" "
+                                +currentMachine.getDirectory[i].getGroup+" "+currentMachine.getDirectory[i].getOwner+" "
+                                +currentMachine.getDirectory[i].getName+"<br>");
 		        }
 		    }
             addConsola (" "+"<br>");   
@@ -369,4 +377,98 @@ function escribirContenido(parametros){
     }
   }
   addConsola ("El archivo solicitado no se encuentra en el disco, por favor verifique el nombre"+"<br>");
+}
+
+function borrarContenido(parametros){
+  for (let i = 0; i < currentMachine.getDirectory.length; i++) {
+    if (currentMachine.getDirectory[i].getName == parametros[1]) {
+      let fileAux = currentMachine.getDirectory[i]
+      if (comprobarPermiso(fileAux, 'w')) {
+      currentMachine.getDirectory.splice(i,1)
+      addConsola ("EL archivo "+fileAux.getName+" ha sido eliminado"+"<br>");
+      console.log(currentMachine.getDirectory)
+      } else {
+      addConsola ("Usted no posee permisos de escritura del archivo "+fileAux.getName+"<br>");
+      }
+      return
+    }
+  }
+  addConsola ("El archivo solicitado no se encuentra en el disco, por favor verifique el nombre"+"<br>");
+}
+
+///&& parametros.length<5
+function comandoSudo(parametros){
+    if(parametros.length>1 ){
+        if(parametros[1]=="chown"){
+            cambiarPropietarios(parametros);
+		}else{
+            addConsola ("en este momento no se puede procesar el comando "+parametros[1]+", intente utilizando: sudo chown (nombre):(grupo) (archivo) <br>"); 
+		}        
+	}else{
+        addConsola ("la cantidad de parametros no coincide con el comando sudo. pruebe utilizando: sudo chown (nombre):(grupo) (archivo)"+"<br>");
+	} 
+}
+
+function cambiarPropietarios(parametros){
+    if(parametros.length>2){
+        if(parametros.length<5){
+            var temp = parametros[2].split(":");
+                if(temp.length==2){
+                    if(buscarUsuario(temp[0])){
+                        if(buscarGrupo(temp[1])){
+                            if(buscarDirectorio(parametros[3])){
+                            //sudo chown daniel:daniel file3
+                                 for(var i =0 ; i<this.currentMachine.getDirectory.length ; i++){
+                                    if(this.currentMachine.getDirectory[i].getName==parametros[3]){
+                                       this.currentMachine.getDirectory[i].setOwner=temp[0];
+                                       this.currentMachine.getDirectory[i].setGroup=temp[1];
+                                       addConsola ("cambios realizados con exito <br>");
+                                       i=this.currentMachine.getDirectory.length;
+	                                }
+	                             }
+					        }else{
+                                addConsola ("no se encuentra el archivo "+parametros[3]+", compruebe que se ha escrito correctamente "+" <br>");
+					        }
+					    }else{
+                            addConsola ("no se encuentra el grupo "+temp[1]+", compruebe que se ha escrito correctamente "+" <br>");
+					    } 
+					}else{
+                        addConsola ("no se encuentra el usuario "+temp[0]+", compruebe que se ha escrito correctamente "+" <br>");
+					}                    
+				}else{
+                    addConsola ("no se puede detectar el nombre y el grupo de manera correcta. pruebe utilizando: sudo chown (nombre):(grupo) (archivo)"+"<br>");            
+				}
+            }else{
+                 addConsola ("debe especificar el nombre, el grupo y el archivo a modificar. pruebe utilizando: sudo chown (nombre):(grupo) (archivo)"+"<br>");
+			}
+		}else{
+             addConsola ("la cantidad de parametros no coincide con el comando chown. pruebe utilizando: sudo chown (nombre):(grupo) (archivo)"+"<br>");
+		}
+}
+
+function buscarUsuario(parametros){
+    for(var i =0 ; i<this.currentMachine.getUsers.length ; i++){
+        if(this.currentMachine.getUsers[i].getName==parametros){
+            return true;
+	    }
+	}
+    return false;
+}
+
+function buscarGrupo(parametros){
+    for(var i =0 ; i<this.currentMachine.getGroups.length ; i++){
+        if(this.currentMachine.getGroups[i].getName==parametros){
+            return true;
+	    }
+	}
+    return false;
+}
+
+function buscarDirectorio(parametros){
+    for(var i =0 ; i<this.currentMachine.getDirectory.length ; i++){
+        if(this.currentMachine.getDirectory[i].getName==parametros){
+            return true;
+	    }
+	}
+    return false;
 }

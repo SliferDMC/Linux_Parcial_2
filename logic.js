@@ -205,6 +205,11 @@ function verificarComandos (parametros){
             break;
             default: addConsola ("no se reconoce el comando "+parametros[0]+"<br>");
         }
+        let aux = ""
+        aux = parametros[0].charAt(0) + parametros[0].charAt(1);
+        if (aux == "./") {
+          ejecutarArchivo(parametros)
+        } 
     }else{
         if(parametros[0]=="login"){
                iniciarUsuario(parametros);
@@ -391,6 +396,22 @@ function borrarContenido(parametros){
       console.log(currentMachine.getDirectory)
       } else {
       addConsola ("Usted no posee permisos de escritura del archivo "+fileAux.getName+"<br>");
+      }
+      return
+    }
+  }
+  addConsola ("El archivo solicitado no se encuentra en el disco, por favor verifique el nombre"+"<br>");
+}
+
+function ejecutarArchivo(parametros){
+  let aux = parametros[0].split("/")[1]
+  for (let i = 0; i < currentMachine.getDirectory.length; i++) {
+    if (currentMachine.getDirectory[i].getName == aux) {
+      let fileAux = currentMachine.getDirectory[i]
+      if (comprobarPermiso(fileAux, 'x')) {
+        addConsola ("Ejecutando el archivo "+fileAux.getName+"<br>");
+      } else {
+        addConsola ("Usted no posee permisos de ejecucion sobre el archivo "+fileAux.getName+"<br>");
       }
       return
     }

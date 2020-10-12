@@ -82,6 +82,14 @@ class file{
   get getDate(){
     return this.date
   }
+
+  set setGroup(group){
+    this.group = group
+  }
+
+  set setOwner(owner){
+    this.owner = owner
+  }
 }
 
 var users1 = [new User("daniel"),new User("miguel"),new User("juan"),new User("pedro")];
@@ -192,6 +200,8 @@ function verificarComandos (parametros){
             case "cat": leerContenido(parametros);   
             break;
             case "nano": escribirContenido(parametros);   
+            break;
+            case "rm": borrarContenido(parametros);
             break;
             default: addConsola ("no se reconoce el comando "+parametros[0]+"<br>");
         }
@@ -364,6 +374,23 @@ function escribirContenido(parametros){
         addConsola ("Escribiendo en el archivo "+fileAux.getName+"<br>");
       } else {
         addConsola ("Usted no posee permisos de escritura del archivo "+fileAux.getName+"<br>");
+      }
+      return
+    }
+  }
+  addConsola ("El archivo solicitado no se encuentra en el disco, por favor verifique el nombre"+"<br>");
+}
+
+function borrarContenido(parametros){
+  for (let i = 0; i < currentMachine.getDirectory.length; i++) {
+    if (currentMachine.getDirectory[i].getName == parametros[1]) {
+      let fileAux = currentMachine.getDirectory[i]
+      if (comprobarPermiso(fileAux, 'w')) {
+      currentMachine.getDirectory.splice(i,1)
+      addConsola ("EL archivo "+fileAux.getName+" ha sido eliminado"+"<br>");
+      console.log(currentMachine.getDirectory)
+      } else {
+      addConsola ("Usted no posee permisos de escritura del archivo "+fileAux.getName+"<br>");
       }
       return
     }

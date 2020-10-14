@@ -71,6 +71,10 @@ class file{
     return this.permits
   }
 
+  set setPermits(permits){
+    this.permits = permits
+  }
+
   get getOwner(){
     return this.owner
   }
@@ -204,6 +208,8 @@ function verificarComandos (parametros){
             case "nano": escribirContenido(parametros);   
             break;
             case "rm": borrarContenido(parametros);
+            break;
+            case "chmod":  cambiarPermisos(parametros); 
             break;
             default: addConsola ("no se reconoce el comando "+parametros[0]+"<br>");
         }
@@ -495,3 +501,83 @@ function buscarDirectorio(parametros){
     return false;
 }
 
+function cambiarPermisos (parametros){ 
+    if(parametros.length>1 && parametros.length<4){
+        var aviso=false;
+        for(var i =0 ; i<this.currentMachine.getDirectory.length ; i++){
+            if(this.currentMachine.getDirectory[i].getName==parametros[2]){
+                var aviso=true;
+                if(comprobarPermiso(this.currentMachine.getDirectory[i],'w')){
+                    var temp=parametros[1].split("");
+                    if(temp.length==3){
+                        if(temp[0]<8 && temp[1]<8 && temp[2]<8){
+                            var temp2=this.currentMachine.getDirectory[i].getPermits.charAt(0);
+                            
+                                if(temp[0]>3){
+                                    temp2+="r";
+				                }else{
+                                    temp2+="-";                
+							    }
+                                if(Math.floor(temp[0]/2)%2==1){
+                                    temp2+="w";
+				                }else{
+                                    temp2+="-";                
+							    }
+                                if(temp[0]%2==1){
+                                    temp2+="x";
+				                }else{
+                                    temp2+="-";                
+							    }
+
+                                if(temp[1]>3){
+                                    temp2+="r";
+				                }else{
+                                    temp2+="-";                
+							    }
+                                if(Math.floor(temp[1]/2)%2==1){
+                                    temp2+="w";
+				                }else{
+                                    temp2+="-";                
+							    }
+                                if(temp[1]%2==1){
+                                    temp2+="x";
+				                }else{
+                                    temp2+="-";                
+							    }
+
+                                if(temp[2]>3){
+                                    temp2+="r";
+				                }else{
+                                    temp2+="-";                
+							    }
+                                if(Math.floor(temp[2]/2)%2==1){
+                                    temp2+="w";
+				                }else{
+                                    temp2+="-";                
+							    }
+                                if(temp[2]%2==1){
+                                    temp2+="x";
+				                }else{
+                                    temp2+="-";                
+							    }
+							 this.currentMachine.getDirectory[i].setPermits=temp2;
+                            addConsola ("cambios realizados con exito <br>");
+                            i=this.currentMachine.getDirectory.length;   
+		                }else{
+                            addConsola ("no se reconoce "+parametros[1]+" como parametro valido, deben de ser digitos del 0 al 7<br>"); 
+		                }
+		            }else{
+                        addConsola ("no se reconoce "+parametros[1]+" como parametro valido, se necesitan exactamente 3 caracteres<br>"); 
+		            }           
+		        }else{
+                    addConsola ("el usuario "+userLogged+" no tiene permisos de escritura sobre el archivo "+parametros[2]+"<br>");
+				}
+	        }
+	    }
+        if(!aviso){
+            addConsola ("no fue posible encontrar el archivo "+parametros[2]+"<br>");  
+		}
+	}else{
+        addConsola ("la cantidad de parametros no coincide con el comando chmod. pruebe utilizando: chmod (permiso) (archivo)"+"<br>");
+	}   
+}

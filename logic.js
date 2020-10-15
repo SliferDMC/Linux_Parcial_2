@@ -134,6 +134,8 @@ var mach4 = new Machine("machine4", "192.168.0.4", files4, users4, group4)
 var userLogged="";
 var rootUser=false;
 var currentMachine=mach1
+var tempMachine = null
+var tempUser = null
 
 function limpiarConsola() 
 {
@@ -190,7 +192,11 @@ function verificarComandos (parametros){
             break;
             case "chown": addConsola (" para usara el comando chown necesita el uso de sudo: sudo chown (nombre):(grupo archivo) <br>"); 
             break;   
-            case "logout":  cerrarUsuario(parametros); 
+            case "logout": if (tempUser == null && tempMachine == null) {
+                              cerrarUsuario(parametros); 
+                            } else {
+                              salirDeSSH()
+                            }
             break;
             case "login":  addConsola ("ya esta registrado con el usuario: "+userLogged+" <br>");
             break;
@@ -204,6 +210,10 @@ function verificarComandos (parametros){
             case "nano": escribirContenido(parametros);   
             break;
             case "rm": borrarContenido(parametros);
+            break;
+            case "ssh": conectarAOtraMaquina(parametros);
+            break;
+            case "exit": salirDeSSH()
             break;
             default: addConsola ("no se reconoce el comando "+parametros[0]+"<br>");
         }
@@ -236,7 +246,7 @@ function iniciarUsuario (parametros){
 }
 
 function cerrarUsuario (parametros){
-    if(parametros.length==1){
+  if(parametros.length==1){
         addConsola ("hasta la proxima "+userLogged+"<br>");
         document.getElementById("prompt").innerHTML = ""
         userLogged="";
@@ -495,3 +505,56 @@ function buscarDirectorio(parametros){
     return false;
 }
 
+function conectarAOtraMaquina(parametros){
+  if (tempUser == null && tempMachine == null) {
+    if (parametros[1].includes('@')) {
+      let name = parametros[1].split('@')[0]
+      let ip = parametros[1].split('@')[1]
+      m = identificarMaquina(ip)
+      if (m == null) {
+        addConsola ("No se identifica una maquina con esa IP, verifique por favor la información"+"<br>");
+      } else {
+        if (m.getIp == currentMachine.getIp) {
+          addConsola ("Ya se encuentra ubicado en la maquina con la IP: "+ip+"<br>");
+        }
+        tempMachine = currentMachine
+        currentMachine = m
+        if (buscarUsuario(name)) {
+          tempUser = userLogged
+          userLogged = name
+          document.getElementById("prompt").innerHTML = userLogged+"@"+currentMachine.getName;
+        } else {
+          addConsola ("No se identifica el usuario en la maquina con esa IP, verifique por favor la información"+"<br>");
+        }
+      }
+    } else {
+      addConsola ("No se reconoce el comando, pruebe con: ssh (nombreUsuario)@(IP)"+"<br>");
+    }
+  } else {
+    addConsola ("No puede ejecutar el comando ssh porque ya esta conectado a una maquina externa"+"<br>");
+  }
+}
+
+function identificarMaquina(ip){
+  if (ip == mach1.getIp) {
+    return mach1
+  } else if(ip == mach2.getIp){
+    return mach2
+  } else if(ip == mach3.getIp){
+    return mach3
+  } else if(ip == mach4.getIp){
+    return mach4
+  } else {
+    return null
+  }
+}
+
+function salirDeSSH(){
+  if (tempMachine != null && tempUser != null) {
+    currentMachine = tempMachine
+    userLogged = tempUser
+    tempMachine = null
+    tempUser = null
+    document.getElementById("prompt").innerHTML = userLogged+"@"+currentMachine.getName;
+  }
+}

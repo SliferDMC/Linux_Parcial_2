@@ -83,13 +83,26 @@ class file{
     return this.date
   }
 
-  set setGroup(group){
-    this.group = group
+  set setName(name){
+    this.name = name
+  }
+
+  set setPermits(permits){
+    this.permits = permits
   }
 
   set setOwner(owner){
     this.owner = owner
   }
+
+  set setGroup(group){
+    this.group = group
+  }
+
+  set setDate(date){
+    this.date = date
+  }
+  
 }
 
 var users1 = [new User("daniel"),new User("miguel"),new User("juan"),new User("pedro")];
@@ -215,6 +228,10 @@ function verificarComandos (parametros){
             break;
             case "exit": salirDeSSH()
             break;
+            case "chmod":  cambiarPermisos(parametros); 
+            break;
+            case "scp": copiarArchivo(parametros);
+            break;
             default: addConsola ("no se reconoce el comando "+parametros[0]+"<br>");
         }
         let aux = ""
@@ -231,6 +248,9 @@ function verificarComandos (parametros){
 	}
 }
 
+/**
+ * Comando login
+ */
 function iniciarUsuario (parametros){ 
     if(parametros.length==2){
         if(buscarUsuario(parametros[1])){
@@ -245,6 +265,9 @@ function iniciarUsuario (parametros){
 	}   
 }
 
+/**
+ * Comando logout
+ */
 function cerrarUsuario (parametros){
   if(parametros.length==1){
         addConsola ("hasta la proxima "+userLogged+"<br>");
@@ -255,6 +278,9 @@ function cerrarUsuario (parametros){
 	}   
 }
 
+/**
+ * Comando touch
+ */
 function crearArchivo(parametros){
   if (parametros.length!=2) {
     addConsola ("la cantidad de parametros no coincide con el comando touch. pruebe utilizando: touch (nombre)"+"<br>");
@@ -286,6 +312,9 @@ function crearArchivo(parametros){
   }
 }
 
+/**
+ * Retorna un String con la fecha actual en formato dd/mm/aaaa
+ */
 function crearFechaActual(){
   let currentDate = ""
   let date  = new Date()
@@ -293,6 +322,9 @@ function crearFechaActual(){
   return currentDate
 }
 
+/**
+ * Dado el nombre del usuario, retorna el nombre del grupo al que pertenece
+ */
 function buscarGrupoDeUsuario(name){
   let g = ""
     for (let i = 0; i < currentMachine.getGroups.length; i++) {
@@ -307,6 +339,9 @@ function buscarGrupoDeUsuario(name){
   return g
 }
 
+/**
+ * Dado el objeto file y un char 'r''w''x', retorna true o false si tiene o no el permiso
+ */
 function comprobarPermiso(file, permiso){
   let p1, p2, p3
   if(permiso == 'r') {
@@ -332,8 +367,12 @@ function comprobarPermiso(file, permiso){
       return true
     }
   }
+  return false
 }
 
+/**
+ * Comando ls
+ */
 function mostrarArchivos (parametros){
     if(parametros.length==1){
         if(this.currentMachine.getDirectory.length==0){
@@ -364,6 +403,9 @@ function mostrarArchivos (parametros){
 	}     
 }
 
+/**
+ * Comando cat
+ */
 function leerContenido(parametros){
   for (let i = 0; i < currentMachine.getDirectory.length; i++) {
     if (currentMachine.getDirectory[i].getName == parametros[1]) {
@@ -380,6 +422,9 @@ function leerContenido(parametros){
    
 }
 
+/**
+ * Comando nano
+ */
 function escribirContenido(parametros){
   for (let i = 0; i < currentMachine.getDirectory.length; i++) {
     if (currentMachine.getDirectory[i].getName == parametros[1]) {
@@ -395,6 +440,9 @@ function escribirContenido(parametros){
   addConsola ("El archivo solicitado no se encuentra en el disco, por favor verifique el nombre"+"<br>");
 }
 
+/**
+ * Comando rm
+ */
 function borrarContenido(parametros){
   for (let i = 0; i < currentMachine.getDirectory.length; i++) {
     if (currentMachine.getDirectory[i].getName == parametros[1]) {
@@ -412,6 +460,9 @@ function borrarContenido(parametros){
   addConsola ("El archivo solicitado no se encuentra en el disco, por favor verifique el nombre"+"<br>");
 }
 
+/**
+ * Comando ./archivo
+ */
 function ejecutarArchivo(parametros){
   let aux = parametros[0].split("/")[1]
   for (let i = 0; i < currentMachine.getDirectory.length; i++) {
@@ -441,6 +492,9 @@ function comandoSudo(parametros){
 	} 
 }
 
+/**
+ * Comando chown
+ */
 function cambiarPropietarios(parametros){
     if(parametros.length>2){
         if(parametros.length<5){
@@ -478,6 +532,9 @@ function cambiarPropietarios(parametros){
 		}
 }
 
+/**
+ * Dado el nombre del usuario, retorna true o false si existe
+ */
 function buscarUsuario(parametros){
     for(var i =0 ; i<this.currentMachine.getUsers.length ; i++){
         if(this.currentMachine.getUsers[i].getName==parametros){
@@ -487,6 +544,9 @@ function buscarUsuario(parametros){
     return false;
 }
 
+/**
+ * Dado el nombre del grupo, retorna true o false si existe
+ */
 function buscarGrupo(parametros){
     for(var i =0 ; i<this.currentMachine.getGroups.length ; i++){
         if(this.currentMachine.getGroups[i].getName==parametros){
@@ -496,6 +556,9 @@ function buscarGrupo(parametros){
     return false;
 }
 
+/**
+ *Dado el nombre del archivo, retorna true o false si el archivo existe
+ */
 function buscarDirectorio(parametros){
     for(var i =0 ; i<this.currentMachine.getDirectory.length ; i++){
         if(this.currentMachine.getDirectory[i].getName==parametros){
@@ -505,6 +568,9 @@ function buscarDirectorio(parametros){
     return false;
 }
 
+/**
+ * Comando ssh
+ */
 function conectarAOtraMaquina(parametros){
   if (tempUser == null && tempMachine == null) {
     if (parametros[1].includes('@')) {
@@ -535,6 +601,9 @@ function conectarAOtraMaquina(parametros){
   }
 }
 
+/**
+ * Dada la ip, retorna la maquina, o null si no existe
+ */
 function identificarMaquina(ip){
   if (ip == mach1.getIp) {
     return mach1
@@ -549,6 +618,9 @@ function identificarMaquina(ip){
   }
 }
 
+/**
+ * Comando exit en ssh
+ */
 function salirDeSSH(){
   if (tempMachine != null && tempUser != null) {
     currentMachine = tempMachine
@@ -557,4 +629,300 @@ function salirDeSSH(){
     tempUser = null
     document.getElementById("prompt").innerHTML = userLogged+"@"+currentMachine.getName;
   }
+}
+
+/**
+ * Comando chmod
+ */
+function cambiarPermisos (parametros){ 
+    if(parametros.length>1 && parametros.length<4){
+        var aviso=false;
+        for(var i =0 ; i<this.currentMachine.getDirectory.length ; i++){
+            if(this.currentMachine.getDirectory[i].getName==parametros[2]){
+                var aviso=true;
+                if(comprobarPermiso(this.currentMachine.getDirectory[i],'w')){
+                    var temp=parametros[1].split("");
+                    if(temp.length==3){
+                        if(temp[0]<8 && temp[1]<8 && temp[2]<8){
+                            var temp2=this.currentMachine.getDirectory[i].getPermits.charAt(0);
+                            
+                                if(temp[0]>3){
+                                    temp2+="r";
+				                }else{
+                                    temp2+="-";                
+							    }
+                                if(Math.floor(temp[0]/2)%2==1){
+                                    temp2+="w";
+				                }else{
+                                    temp2+="-";                
+							    }
+                                if(temp[0]%2==1){
+                                    temp2+="x";
+				                }else{
+                                    temp2+="-";                
+							    }
+
+                                if(temp[1]>3){
+                                    temp2+="r";
+				                }else{
+                                    temp2+="-";                
+							    }
+                                if(Math.floor(temp[1]/2)%2==1){
+                                    temp2+="w";
+				                }else{
+                                    temp2+="-";                
+							    }
+                                if(temp[1]%2==1){
+                                    temp2+="x";
+				                }else{
+                                    temp2+="-";                
+							    }
+
+                                if(temp[2]>3){
+                                    temp2+="r";
+				                }else{
+                                    temp2+="-";                
+							    }
+                                if(Math.floor(temp[2]/2)%2==1){
+                                    temp2+="w";
+				                }else{
+                                    temp2+="-";                
+							    }
+                                if(temp[2]%2==1){
+                                    temp2+="x";
+				                }else{
+                                    temp2+="-";                
+							    }
+							 this.currentMachine.getDirectory[i].setPermits=temp2;
+                            addConsola ("cambios realizados con exito <br>");
+                            i=this.currentMachine.getDirectory.length;   
+		                }else{
+                            addConsola ("no se reconoce "+parametros[1]+" como parametro valido, deben de ser digitos del 0 al 7<br>"); 
+		                }
+		            }else{
+                        addConsola ("no se reconoce "+parametros[1]+" como parametro valido, se necesitan exactamente 3 caracteres<br>"); 
+		            }           
+		        }else{
+                    addConsola ("el usuario "+userLogged+" no tiene permisos de escritura sobre el archivo "+parametros[2]+"<br>");
+				}
+	        }
+	    }
+        if(!aviso){
+            addConsola ("no fue posible encontrar el archivo "+parametros[2]+"<br>");  
+		}
+	}else{
+        addConsola ("la cantidad de parametros no coincide con el comando chmod. pruebe utilizando: chmod (permiso) (archivo)"+"<br>");
+	}   
+}
+
+/**
+ * Comando scp
+ */
+function copiarArchivo(parametros){
+  let nombreArchivo = ""
+  let nombreArchivoD = ""
+  let usuario = ""
+  let ip = ""
+  if (parametros.length == 3) {
+
+    //Traer el archivo
+    if (parametros[1].includes("@")) {
+      ip = parametros[1].split("@")[1].split(":")[0]
+      maquina = identificarMaquina(ip)
+
+      if (maquina != null) {
+        
+        if (maquina == currentMachine) {
+          addConsola ("La ip proporcionada corresponde a la maquina actual" +"<br>");
+          return
+        }
+        usuario = parametros[1].split("@")[0]
+        // Verifica si el usuario que va quedar como propietario existe
+        if (buscarUsuarioPorMaquina(usuario, currentMachine)) {
+          nombreArchivo = parametros[1].split("@")[1].split(":")[1]
+          // Se verifica si el archivo existe
+          let arch = buscarArchivoPorMaquina(nombreArchivo, maquina)
+          if (arch != null) {
+            if (comprobarPermisoPorUsuario(arch, 'r', userLogged)) {
+              nombreArchivoD = parametros[2]
+              let archD = null
+              if (nombreArchivoD == ".") {
+                // Se debe verificar si el nombre del archivo original existe en la maquina destino
+                archD = buscarArchivoPorMaquina(nombreArchivo, currentMachine)
+                if (archD != null) {
+                // Se verifican los permisos de escritura en el archivo destino
+                  if (comprobarPermisoPorUsuario(archD,'w',userLogged)) {
+                  archD.setPermits = arch.getPermits
+                  archD.setOwner = usuario
+                  archD.setGroup = usuario
+                  archD.setDate = crearFechaActual()
+                  } else {
+                    addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
+                  }
+                } else {
+                  currentMachine.getDirectory.push(new File(arch.getName,arch.getPermits,usuario,usuario,crearFechaActual()))
+                }
+              } else if (buscarArchivoPorMaquina(nombreArchivoD, currentMachine) != null) {
+                archD = buscarArchivoPorMaquina(nombreArchivoD, currentMachine)
+                // Se verifican los permisos de escritura en el archivo destino
+                if (comprobarPermisoPorUsuario(archD,'w',userLogged)) {
+                  archD.setPermits = arch.getPermits
+                  archD.setOwner = usuario
+                  archD.setGroup = usuario
+                  archD.setDate = crearFechaActual()
+                  } else {
+                   addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
+                  }
+              } else {
+                currentMachine.getDirectory.push(new File(arch.getName,arch.getPermits,usuario,usuario,crearFechaActual()))
+              } 
+            } else {
+              addConsola ("Actualmente no se poseen permisos de lectura sobre el archivo original" +"<br>");
+            }
+          } else {
+            addConsola ("No se reconoce el archivo: "+nombreArchivo+" en la maquina con IP: "+ ip +" por favor compruebe la informacion" +"<br>");
+          }
+        } else {
+          addConsola ("No se reconoce el usuario: "+usuario+" por favor compruebe la informacion" +"<br>");
+        }
+      } else {
+        addConsola ("No se reconoce la ip: "+ip+" por favor compruebe la informacion" +"<br>"); 
+      }
+
+    } else if (parametros[2].includes("@")) {
+      /////////////////////////////////////////
+      /////////////////////////////////////////
+      ///////////////////////////////////////
+      ip = parametros[2].split("@")[1].split(":")[0]
+      maquina = identificarMaquina(ip)
+
+      if (maquina != null) {
+
+        if (maquina == currentMachine) {
+          addConsola ("La ip proporcionada corresponde a la maquina actual" +"<br>");
+          return
+        }
+
+        usuario = parametros[2].split("@")[0]
+        if (buscarUsuarioPorMaquina(usuario, maquina)) {
+
+          nombreArchivo = parametros[1]
+          // Se verifica si el archivo existe
+          let arch = buscarArchivoPorMaquina(nombreArchivo, currentMachine)
+
+          if (arch != null) {
+            if (comprobarPermisoPorUsuario(arch, 'r', userLogged)) {
+              nombreArchivoD = parametros[2].split("@")[1].split(":")[1]
+              let archD = null
+              if (nombreArchivoD == ".") {
+                // Se debe verificar si el nombre del archivo original existe en la maquina destino
+                archD = buscarArchivoPorMaquina(nombreArchivo, maquina)
+                if (archD != null) {
+                // Se verifican los permisos de escritura en el archivo destino
+                  if (comprobarPermisoPorUsuario(archD,'w',userLogged)) {
+                    archD.setPermits = arch.getPermits
+                    archD.setOwner = usuario
+                    archD.setGroup = usuario
+                    archD.setDate = crearFechaActual()
+                  } else {
+                    addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
+                  }
+                } else {
+                  maquina.getDirectory.push(new File(arch.getName,arch.getPermits,usuario,usuario,crearFechaActual()))
+                }
+              } else if (buscarArchivoPorMaquina(nombreArchivoD, maquina) != null) {
+                archD = buscarArchivoPorMaquina(nombreArchivoD, maquina)
+                // Se verifican los permisos de escritura en el archivo destino
+                if (comprobarPermisoPorUsuario(archD,'w',userLogged)) {
+                  archD.setPermits = arch.getPermits
+                  archD.setOwner = usuario
+                  archD.setGroup = usuario
+                  archD.setDate = crearFechaActual()
+                  } else {
+                   addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
+                  }
+              } else {
+                maquina.getDirectory.push(new File(arch.getName,arch.getPermits,usuario,usuario,crearFechaActual()))
+              }
+            } else {
+              addConsola ("Actualmente no se poseen permisos de lectura sobre el archivo original" +"<br>");
+            }
+          } else {
+            addConsola ("No se reconoce el archivo: "+nombreArchivo+" en la maquina con IP: "+ ip +" por favor compruebe la informacion" +"<br>");
+          }
+        } else {
+          addConsola ("No se reconoce el usuario: "+usuario+" por favor compruebe la informacion" +"<br>");
+        }
+
+      } else {
+        addConsola ("No se reconoce la ip: "+ip+" por favor compruebe la informacion" +"<br>");
+      }
+
+    } else {
+      addConsola ("Existe un error de sintaxis con el comando scp. pruebe utilizando: scp archivo usuario@ip:archivoD \n"+
+                "o con: scp archivo usuario@ip:. \n"+
+                "o con: scp usuario@ip:archivo archivoD \n"+
+                "o con: scp usuario@ip:archivo ."+"<br>");
+    }
+  } else {
+    addConsola ("la cantidad de parametros no coincide con el comando scp. pruebe utilizando: scp archivo usuario@ip:archivoD \n"+
+                "o con: scp archivo usuario@ip:. \n"+
+                "o con: scp usuario@ip:archivo archivoD \n"+
+                "o con: scp usuario@ip:archivo ."+"<br>");
+  }
+}
+
+/**
+ * Dado el nombre y la maquina, retorna true o false si esta alli
+ */
+function buscarUsuarioPorMaquina(nombre, maquina){
+  for(var i =0 ; i<maquina.getUsers.length ; i++){
+    if(maquina.getUsers[i].getName==nombre){
+        return true;
+    }
+  }
+return false;
+}
+
+/** 
+ * Dado el nombre del archivo y la maquina, retorna el archivo o null
+*/
+function buscarArchivoPorMaquina(nombre, maq){
+  for (let i = 0; i < maq.getDirectory.length; i++) {
+    if (maq.getDirectory[i].getName == nombre) {
+      return maq.getDirectory[i]
+    }
+  }
+  return null
+}
+
+/**
+ * Dado el archivo, permiso y el usuario, comprueba si este tiene el permiso en ese archivo
+ */
+function comprobarPermisoPorUsuario(file, permiso, user){
+  let p1, p2, p3
+  if(permiso == 'r') {
+    p1 = 1, p2 = 4, p3 = 7
+  } else if (permiso == 'w') {
+    p1 = 2, p2 = 5, p3 = 8
+  } else {
+    p1 = 3, p2 = 6, p3 = 9
+  }
+
+  if (file.getOwner == user) {
+    if (file.getPermits.charAt(p1) == permiso) {
+      return true
+    }
+  }
+  if (file.getGroup == buscarGrupoDeUsuario(user)) {
+    if (file.getPermits.charAt(p2) == permiso) {
+      return true
+    }
+  }
+  if (file.getOwner != user && file.getGroup != buscarGrupoDeUsuario(user)) {
+    if (file.getPermits.charAt(p3) == permiso) {
+      return true
+    }
+  }
+  return false
 }

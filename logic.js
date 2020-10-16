@@ -112,12 +112,12 @@ var users4 = [new User("nero"),new User("dante"),new User("vergil"),new User("tr
 
 var files1 = [new file("file1", "-rw-r-----", "daniel", "daniel", crearFechaActual()), new file("file2", "-rw-r-----", "miguel", "miguel", crearFechaActual()),
               new file("file3", "-rw-r-----", "juan", "juan", crearFechaActual()), new file("file4", "-rw-r-----", "pedro", "pedro", crearFechaActual())]
-var files2 = [new file("file1", "-rw-r-----", "pablo", "pablo", crearFechaActual()), new file("file2", "-rw-r-----", "pacho", "pacho", crearFechaActual()), 
-              new file("file3", "-rw-r-----", "simon", "simon", crearFechaActual()), new file("file4", "-rw-r-----", "roberto", "roberto", crearFechaActual())]
-var files3 = [new file("file1", "-rw-r-----", "jose", "jose", crearFechaActual()), new file("file2", "-rw-r-----", "ana", "ana", crearFechaActual()), 
-              new file("file3", "-rw-r-----", "maria", "maria", crearFechaActual()), new file("file4", "-rw-r-----", "abigail", "abigail", crearFechaActual())]
-var files4 = [new file("file1", "-rw-r-----", "nero", "nero", crearFechaActual()), new file("file2", "-rw-r-----", "dante", "dante", crearFechaActual()), 
-              new file("file3", "-rw-r-----", "vergil", "vergil", crearFechaActual()), new file("file4", "-rw-r-----", "trist", "trist", crearFechaActual())]
+var files2 = [new file("file5", "-rw-r-----", "pablo", "pablo", crearFechaActual()), new file("file6", "-rw-r-----", "pacho", "pacho", crearFechaActual()), 
+              new file("file7", "-rw-r-----", "simon", "simon", crearFechaActual()), new file("file8", "-rw-r-----", "roberto", "roberto", crearFechaActual())]
+var files3 = [new file("file9", "-rw-r-----", "jose", "jose", crearFechaActual()), new file("file10", "-rw-r-----", "ana", "ana", crearFechaActual()), 
+              new file("file11", "-rw-r-----", "maria", "maria", crearFechaActual()), new file("file12", "-rw-r-----", "abigail", "abigail", crearFechaActual())]
+var files4 = [new file("file13", "-rw-r--rw-", "nero", "nero", crearFechaActual()), new file("file14", "-rw-r-----", "dante", "dante", crearFechaActual()), 
+              new file("file15", "-rw-r-----", "vergil", "vergil", crearFechaActual()), new file("file16", "-rw-r-----", "trist", "trist", crearFechaActual())]
 
 var group1 = []
 var group2 = []
@@ -228,9 +228,11 @@ function verificarComandos (parametros){
             break;
             case "exit": salirDeSSH()
             break;
-            case "chmod":  cambiarPermisos(parametros); 
+            case "chmod":  cambiarPermisos(parametros);
             break;
             case "scp": copiarArchivo(parametros);
+                        console.log(mach4.getDirectory)
+                        console.log(mach1.getDirectory)
             break;
             default: addConsola ("no se reconoce el comando "+parametros[0]+"<br>");
         }
@@ -255,7 +257,7 @@ function iniciarUsuario (parametros){
     if(parametros.length==2){
         if(buscarUsuario(parametros[1])){
             this.userLogged=parametros[1];
-            addConsola ("bienvenido "+parametros[1]+"<br>"); 
+            addConsola ("Bienvenido "+parametros[1]+"<br>"); 
             document.getElementById("prompt").innerHTML = parametros[1]+"@"+currentMachine.getName;
 		}else{
             addConsola ("no se encuentra el usuario "+parametros[1]+", compruebe si el nombre es correcto");
@@ -760,7 +762,7 @@ function copiarArchivo(parametros){
                     addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
                   }
                 } else {
-                  currentMachine.getDirectory.push(new File(arch.getName,arch.getPermits,usuario,usuario,crearFechaActual()))
+                  currentMachine.getDirectory.push(new file(arch.getName,arch.getPermits,usuario,usuario,crearFechaActual()))
                 }
               } else if (buscarArchivoPorMaquina(nombreArchivoD, currentMachine) != null) {
                 archD = buscarArchivoPorMaquina(nombreArchivoD, currentMachine)
@@ -774,7 +776,7 @@ function copiarArchivo(parametros){
                    addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
                   }
               } else {
-                currentMachine.getDirectory.push(new File(arch.getName,arch.getPermits,usuario,usuario,crearFechaActual()))
+                currentMachine.getDirectory.push(new file(nombreArchivoD,arch.getPermits,usuario,usuario,crearFechaActual()))
               } 
             } else {
               addConsola ("Actualmente no se poseen permisos de lectura sobre el archivo original" +"<br>");
@@ -828,7 +830,7 @@ function copiarArchivo(parametros){
                     addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
                   }
                 } else {
-                  maquina.getDirectory.push(new File(arch.getName,arch.getPermits,usuario,usuario,crearFechaActual()))
+                  maquina.getDirectory.push(new file(arch.getName,arch.getPermits,usuario,usuario,crearFechaActual()))
                 }
               } else if (buscarArchivoPorMaquina(nombreArchivoD, maquina) != null) {
                 archD = buscarArchivoPorMaquina(nombreArchivoD, maquina)
@@ -842,7 +844,7 @@ function copiarArchivo(parametros){
                    addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
                   }
               } else {
-                maquina.getDirectory.push(new File(arch.getName,arch.getPermits,usuario,usuario,crearFechaActual()))
+                maquina.getDirectory.push(new file(nombreArchivoD,arch.getPermits,usuario,usuario,crearFechaActual()))
               }
             } else {
               addConsola ("Actualmente no se poseen permisos de lectura sobre el archivo original" +"<br>");

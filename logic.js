@@ -226,7 +226,7 @@ function verificarComandos (parametros){
             break;
             case "ssh": conectarAOtraMaquina(parametros);
             break;
-            case "exit": salirDeSSH()
+            case "exit": salirDeSSH(parametros)
             break;
             case "chmod":  cambiarPermisos(parametros);
             break;
@@ -376,15 +376,15 @@ function comprobarPermiso(file, permiso){
  * Comando ls
  */
 function mostrarArchivos (parametros){
-    if(parametros.length==1){
-        if(this.currentMachine.getDirectory.length==0){
-             addConsola ("no hay archivos a mostrar");
+  if(parametros.length==1){
+    if(this.currentMachine.getDirectory.length==0){
+      addConsola ("no hay archivos a mostrar");
 		}else{
-            for(var i =0 ; i<this.currentMachine.getDirectory.length ; i++){
-                addConsola (currentMachine.getDirectory[i].getName+" ");
+        for(var i =0 ; i<this.currentMachine.getDirectory.length ; i++){
+          addConsola (currentMachine.getDirectory[i].getName+" ");
 		    }
 		}
-        addConsola (" "+"<br>");
+    addConsola (" "+"<br>");
 	}else if(parametros.length==2){
         if(parametros[1]=="-l"){
             if(this.currentMachine.getDirectory.length==0){
@@ -409,18 +409,23 @@ function mostrarArchivos (parametros){
  * Comando cat
  */
 function leerContenido(parametros){
-  for (let i = 0; i < currentMachine.getDirectory.length; i++) {
-    if (currentMachine.getDirectory[i].getName == parametros[1]) {
-      let fileAux = currentMachine.getDirectory[i]
-      if (comprobarPermiso(fileAux, 'r')) {
-        addConsola ("Leyendo el contenido del archivo "+fileAux.getName+"<br>");
-      } else {
-        addConsola ("Usted no posee permisos de lectura del archivo "+fileAux.getName+"<br>");
-      }
-      return
-    } 
+  if (parametros.length == 2) {
+    for (let i = 0; i < currentMachine.getDirectory.length; i++) {
+      if (currentMachine.getDirectory[i].getName == parametros[1]) {
+        let fileAux = currentMachine.getDirectory[i]
+        if (comprobarPermiso(fileAux, 'r')) {
+          addConsola ("Leyendo el contenido del archivo "+fileAux.getName+"<br>");
+        } else {
+          addConsola ("Usted no posee permisos de lectura del archivo "+fileAux.getName+"<br>");
+        }
+        return
+      } 
+    }
+    addConsola ("El archivo solicitado no se encuentra en el disco, por favor verifique el nombre"+"<br>");
+  } else {
+    addConsola ("la cantidad de parametros no coincide con el comando cat. pruebe utilizando: cat (Archivo)"+"<br>");
   }
-  addConsola ("El archivo solicitado no se encuentra en el disco, por favor verifique el nombre"+"<br>");
+  
    
 }
 
@@ -428,45 +433,53 @@ function leerContenido(parametros){
  * Comando nano
  */
 function escribirContenido(parametros){
-  for (let i = 0; i < currentMachine.getDirectory.length; i++) {
-    if (currentMachine.getDirectory[i].getName == parametros[1]) {
-      let fileAux = currentMachine.getDirectory[i]
-      if (comprobarPermiso(fileAux, 'w')) {
-        addConsola ("Escribiendo en el archivo "+fileAux.getName+"<br>");
-      } else {
-        addConsola ("Usted no posee permisos de escritura del archivo "+fileAux.getName+"<br>");
+  if (parametros.length == 2) {
+    for (let i = 0; i < currentMachine.getDirectory.length; i++) {
+      if (currentMachine.getDirectory[i].getName == parametros[1]) {
+        let fileAux = currentMachine.getDirectory[i]
+        if (comprobarPermiso(fileAux, 'w')) {
+          addConsola ("Escribiendo en el archivo "+fileAux.getName+"<br>");
+        } else {
+          addConsola ("Usted no posee permisos de escritura del archivo "+fileAux.getName+"<br>");
+        }
+        return
       }
-      return
     }
+  } else {
+    addConsola ("la cantidad de parametros no coincide con el comando nano. pruebe utilizando: nano (Archivo)"+"<br>");
   }
-  addConsola ("El archivo solicitado no se encuentra en el disco, por favor verifique el nombre"+"<br>");
 }
 
 /**
  * Comando rm
  */
 function borrarContenido(parametros){
-  for (let i = 0; i < currentMachine.getDirectory.length; i++) {
-    if (currentMachine.getDirectory[i].getName == parametros[1]) {
-      let fileAux = currentMachine.getDirectory[i]
-      if (comprobarPermiso(fileAux, 'w')) {
-      currentMachine.getDirectory.splice(i,1)
-      addConsola ("EL archivo "+fileAux.getName+" ha sido eliminado"+"<br>");
-      console.log(currentMachine.getDirectory)
-      } else {
-      addConsola ("Usted no posee permisos de escritura del archivo "+fileAux.getName+"<br>");
+  if (parametros.length == 2) {
+    for (let i = 0; i < currentMachine.getDirectory.length; i++) {
+      if (currentMachine.getDirectory[i].getName == parametros[1]) {
+        let fileAux = currentMachine.getDirectory[i]
+        if (comprobarPermiso(fileAux, 'w')) {
+        currentMachine.getDirectory.splice(i,1)
+        addConsola ("EL archivo "+fileAux.getName+" ha sido eliminado"+"<br>");
+        console.log(currentMachine.getDirectory)
+        } else {
+        addConsola ("Usted no posee permisos de escritura del archivo "+fileAux.getName+"<br>");
+        }
+        return
       }
-      return
     }
+    addConsola ("El archivo solicitado no se encuentra en el disco, por favor verifique el nombre"+"<br>");
+  } else {
+    addConsola ("la cantidad de parametros no coincide con el comando rm. pruebe utilizando: rm (Archivo)"+"<br>");
   }
-  addConsola ("El archivo solicitado no se encuentra en el disco, por favor verifique el nombre"+"<br>");
 }
 
 /**
  * Comando ./archivo
  */
 function ejecutarArchivo(parametros){
-  let aux = parametros[0].split("/")[1]
+  if (parametros.length == 2) {
+    let aux = parametros[0].split("/")[1]
   for (let i = 0; i < currentMachine.getDirectory.length; i++) {
     if (currentMachine.getDirectory[i].getName == aux) {
       let fileAux = currentMachine.getDirectory[i]
@@ -478,7 +491,11 @@ function ejecutarArchivo(parametros){
       return
     }
   }
-  addConsola ("El archivo solicitado no se encuentra en el disco, por favor verifique el nombre"+"<br>");
+    addConsola ("El archivo solicitado no se encuentra en el disco, por favor verifique el nombre"+"<br>");
+  } else {
+    addConsola ("la cantidad de parametros no coincide con el comando de ejecucion. pruebe utilizando: ./(Archivo)"+"<br>");
+  }
+  
 }
 
 ///&& parametros.length<5
@@ -574,32 +591,36 @@ function buscarDirectorio(parametros){
  * Comando ssh
  */
 function conectarAOtraMaquina(parametros){
-  if (tempUser == null && tempMachine == null) {
-    if (parametros[1].includes('@')) {
-      let name = parametros[1].split('@')[0]
-      let ip = parametros[1].split('@')[1]
-      m = identificarMaquina(ip)
-      if (m == null) {
-        addConsola ("No se identifica una maquina con esa IP, verifique por favor la información"+"<br>");
-      } else {
-        if (m.getIp == currentMachine.getIp) {
-          addConsola ("Ya se encuentra ubicado en la maquina con la IP: "+ip+"<br>");
-        }
-        tempMachine = currentMachine
-        currentMachine = m
-        if (buscarUsuario(name)) {
-          tempUser = userLogged
-          userLogged = name
-          document.getElementById("prompt").innerHTML = userLogged+"@"+currentMachine.getName;
+  if (parametros == 2) {
+    if (tempUser == null && tempMachine == null) {
+      if (parametros[1].includes('@')) {
+        let name = parametros[1].split('@')[0]
+        let ip = parametros[1].split('@')[1]
+        m = identificarMaquina(ip)
+        if (m == null) {
+          addConsola ("No se identifica una maquina con esa IP, verifique por favor la información"+"<br>");
         } else {
-          addConsola ("No se identifica el usuario en la maquina con esa IP, verifique por favor la información"+"<br>");
+          if (m.getIp == currentMachine.getIp) {
+            addConsola ("Ya se encuentra ubicado en la maquina con la IP: "+ip+"<br>");
+          }
+          tempMachine = currentMachine
+          currentMachine = m
+          if (buscarUsuario(name)) {
+            tempUser = userLogged
+            userLogged = name
+            document.getElementById("prompt").innerHTML = userLogged+"@"+currentMachine.getName;
+          } else {
+            addConsola ("No se identifica el usuario en la maquina con esa IP, verifique por favor la información"+"<br>");
+          }
         }
+      } else {
+        addConsola ("No se reconoce el comando, pruebe con: ssh (nombreUsuario)@(IP)"+"<br>");
       }
     } else {
-      addConsola ("No se reconoce el comando, pruebe con: ssh (nombreUsuario)@(IP)"+"<br>");
+      addConsola ("No puede ejecutar el comando ssh porque ya esta conectado a una maquina externa"+"<br>");
     }
   } else {
-    addConsola ("No puede ejecutar el comando ssh porque ya esta conectado a una maquina externa"+"<br>");
+    addConsola ("la cantidad de parametros no coincide con el comando ssh. pruebe utilizando: ssh (ip)@(usuario)"+"<br>");
   }
 }
 
@@ -623,14 +644,19 @@ function identificarMaquina(ip){
 /**
  * Comando exit en ssh
  */
-function salirDeSSH(){
-  if (tempMachine != null && tempUser != null) {
-    currentMachine = tempMachine
-    userLogged = tempUser
-    tempMachine = null
-    tempUser = null
-    document.getElementById("prompt").innerHTML = userLogged+"@"+currentMachine.getName;
+function salirDeSSH(parametros){
+  if (parametros == 1) {
+    if (tempMachine != null && tempUser != null) {
+      currentMachine = tempMachine
+      userLogged = tempUser
+      tempMachine = null
+      tempUser = null
+      document.getElementById("prompt").innerHTML = userLogged+"@"+currentMachine.getName;
+    }
+  } else {
+    addConsola ("la cantidad de parametros no coincide con el comando exit. pruebe utilizando solo: exit"+"<br>");
   }
+  
 }
 
 /**
@@ -721,157 +747,166 @@ function cambiarPermisos (parametros){
  * Comando scp
  */
 function copiarArchivo(parametros){
-  let nombreArchivo = ""
-  let nombreArchivoD = ""
-  let usuario = ""
-  let ip = ""
+
   if (parametros.length == 3) {
-
-    //Traer el archivo
-    if (parametros[1].includes("@")) {
-      ip = parametros[1].split("@")[1].split(":")[0]
-      maquina = identificarMaquina(ip)
-
-      if (maquina != null) {
-        
-        if (maquina == currentMachine) {
-          addConsola ("La ip proporcionada corresponde a la maquina actual" +"<br>");
-          return
-        }
-        usuario = parametros[1].split("@")[0]
-        // Verifica si el usuario que va quedar como propietario existe
-        if (buscarUsuarioPorMaquina(usuario, currentMachine)) {
-          nombreArchivo = parametros[1].split("@")[1].split(":")[1]
-          // Se verifica si el archivo existe
-          let arch = buscarArchivoPorMaquina(nombreArchivo, maquina)
-          if (arch != null) {
-            if (comprobarPermisoPorUsuario(arch, 'r', userLogged)) {
-              nombreArchivoD = parametros[2]
-              let archD = null
-              if (nombreArchivoD == ".") {
-                // Se debe verificar si el nombre del archivo original existe en la maquina destino
-                archD = buscarArchivoPorMaquina(nombreArchivo, currentMachine)
-                if (archD != null) {
-                // Se verifican los permisos de escritura en el archivo destino
-                  if (comprobarPermisoPorUsuario(archD,'w',userLogged)) {
-                  archD.setPermits = arch.getPermits
-                  archD.setOwner = usuario
-                  archD.setGroup = usuario
-                  archD.setDate = crearFechaActual()
-                  } else {
-                    addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
-                  }
-                } else {
-                  currentMachine.getDirectory.push(new file(arch.getName,arch.getPermits,usuario,usuario,crearFechaActual()))
-                }
-              } else if (buscarArchivoPorMaquina(nombreArchivoD, currentMachine) != null) {
-                archD = buscarArchivoPorMaquina(nombreArchivoD, currentMachine)
-                // Se verifican los permisos de escritura en el archivo destino
-                if (comprobarPermisoPorUsuario(archD,'w',userLogged)) {
-                  archD.setPermits = arch.getPermits
-                  archD.setOwner = usuario
-                  archD.setGroup = usuario
-                  archD.setDate = crearFechaActual()
-                  } else {
-                   addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
-                  }
-              } else {
-                currentMachine.getDirectory.push(new file(nombreArchivoD,arch.getPermits,usuario,usuario,crearFechaActual()))
-              } 
-            } else {
-              addConsola ("Actualmente no se poseen permisos de lectura sobre el archivo original" +"<br>");
-            }
-          } else {
-            addConsola ("No se reconoce el archivo: "+nombreArchivo+" en la maquina con IP: "+ ip +" por favor compruebe la informacion" +"<br>");
+    let nombreArchivo = ""
+    let nombreArchivoD = ""
+    let usuario = ""
+    let ip = ""
+    if (parametros.length == 3) {
+  
+      //Traer el archivo
+      if (parametros[1].includes("@")) {
+        ip = parametros[1].split("@")[1].split(":")[0]
+        maquina = identificarMaquina(ip)
+  
+        if (maquina != null) {
+          
+          if (maquina == currentMachine) {
+            addConsola ("La ip proporcionada corresponde a la maquina actual" +"<br>");
+            return
           }
-        } else {
-          addConsola ("No se reconoce el usuario: "+usuario+" por favor compruebe la informacion" +"<br>");
-        }
-      } else {
-        addConsola ("No se reconoce la ip: "+ip+" por favor compruebe la informacion" +"<br>"); 
-      }
-
-    } else if (parametros[2].includes("@")) {
-      /////////////////////////////////////////
-      /////////////////////////////////////////
-      ///////////////////////////////////////
-      ip = parametros[2].split("@")[1].split(":")[0]
-      maquina = identificarMaquina(ip)
-
-      if (maquina != null) {
-
-        if (maquina == currentMachine) {
-          addConsola ("La ip proporcionada corresponde a la maquina actual" +"<br>");
-          return
-        }
-
-        usuario = parametros[2].split("@")[0]
-        if (buscarUsuarioPorMaquina(usuario, maquina)) {
-
-          nombreArchivo = parametros[1]
-          // Se verifica si el archivo existe
-          let arch = buscarArchivoPorMaquina(nombreArchivo, currentMachine)
-
-          if (arch != null) {
-            if (comprobarPermisoPorUsuario(arch, 'r', userLogged)) {
-              nombreArchivoD = parametros[2].split("@")[1].split(":")[1]
-              let archD = null
-              if (nombreArchivoD == ".") {
-                // Se debe verificar si el nombre del archivo original existe en la maquina destino
-                archD = buscarArchivoPorMaquina(nombreArchivo, maquina)
-                if (archD != null) {
-                // Se verifican los permisos de escritura en el archivo destino
+          usuario = parametros[1].split("@")[0]
+          // Verifica si el usuario que va quedar como propietario existe
+          if (buscarUsuarioPorMaquina(usuario, currentMachine)) {
+            nombreArchivo = parametros[1].split("@")[1].split(":")[1]
+            // Se verifica si el archivo existe
+            let arch = buscarArchivoPorMaquina(nombreArchivo, maquina)
+            if (arch != null) {
+              if (comprobarPermisoPorUsuario(arch, 'r', userLogged)) {
+                nombreArchivoD = parametros[2]
+                let archD = null
+                if (nombreArchivoD == ".") {
+                  // Se debe verificar si el nombre del archivo original existe en la maquina destino
+                  archD = buscarArchivoPorMaquina(nombreArchivo, currentMachine)
+                  if (archD != null) {
+                  // Se verifican los permisos de escritura en el archivo destino
+                    if (comprobarPermisoPorUsuario(archD,'w',userLogged)) {
+                    archD.setPermits = arch.getPermits
+                    archD.setOwner = usuario
+                    archD.setGroup = usuario
+                    archD.setDate = crearFechaActual()
+                    } else {
+                      addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
+                    }
+                  } else {
+                    currentMachine.getDirectory.push(new file(arch.getName,arch.getPermits,usuario,usuario,crearFechaActual()))
+                  }
+                } else if (buscarArchivoPorMaquina(nombreArchivoD, currentMachine) != null) {
+                  archD = buscarArchivoPorMaquina(nombreArchivoD, currentMachine)
+                  // Se verifican los permisos de escritura en el archivo destino
                   if (comprobarPermisoPorUsuario(archD,'w',userLogged)) {
                     archD.setPermits = arch.getPermits
                     archD.setOwner = usuario
                     archD.setGroup = usuario
                     archD.setDate = crearFechaActual()
-                  } else {
-                    addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
-                  }
+                    } else {
+                     addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
+                    }
                 } else {
-                  maquina.getDirectory.push(new file(arch.getName,arch.getPermits,usuario,usuario,crearFechaActual()))
-                }
-              } else if (buscarArchivoPorMaquina(nombreArchivoD, maquina) != null) {
-                archD = buscarArchivoPorMaquina(nombreArchivoD, maquina)
-                // Se verifican los permisos de escritura en el archivo destino
-                if (comprobarPermisoPorUsuario(archD,'w',userLogged)) {
-                  archD.setPermits = arch.getPermits
-                  archD.setOwner = usuario
-                  archD.setGroup = usuario
-                  archD.setDate = crearFechaActual()
-                  } else {
-                   addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
-                  }
+                  currentMachine.getDirectory.push(new file(nombreArchivoD,arch.getPermits,usuario,usuario,crearFechaActual()))
+                } 
               } else {
-                maquina.getDirectory.push(new file(nombreArchivoD,arch.getPermits,usuario,usuario,crearFechaActual()))
+                addConsola ("Actualmente no se poseen permisos de lectura sobre el archivo original" +"<br>");
               }
             } else {
-              addConsola ("Actualmente no se poseen permisos de lectura sobre el archivo original" +"<br>");
+              addConsola ("No se reconoce el archivo: "+nombreArchivo+" en la maquina con IP: "+ ip +" por favor compruebe la informacion" +"<br>");
             }
           } else {
-            addConsola ("No se reconoce el archivo: "+nombreArchivo+" en la maquina con IP: "+ ip +" por favor compruebe la informacion" +"<br>");
+            addConsola ("No se reconoce el usuario: "+usuario+" por favor compruebe la informacion" +"<br>");
           }
         } else {
-          addConsola ("No se reconoce el usuario: "+usuario+" por favor compruebe la informacion" +"<br>");
+          addConsola ("No se reconoce la ip: "+ip+" por favor compruebe la informacion" +"<br>"); 
         }
-
+  
+      } else if (parametros[2].includes("@")) {
+        /////////////////////////////////////////
+        /////////////////////////////////////////
+        ///////////////////////////////////////
+        ip = parametros[2].split("@")[1].split(":")[0]
+        maquina = identificarMaquina(ip)
+  
+        if (maquina != null) {
+  
+          if (maquina == currentMachine) {
+            addConsola ("La ip proporcionada corresponde a la maquina actual" +"<br>");
+            return
+          }
+  
+          usuario = parametros[2].split("@")[0]
+          if (buscarUsuarioPorMaquina(usuario, maquina)) {
+  
+            nombreArchivo = parametros[1]
+            // Se verifica si el archivo existe
+            let arch = buscarArchivoPorMaquina(nombreArchivo, currentMachine)
+  
+            if (arch != null) {
+              if (comprobarPermisoPorUsuario(arch, 'r', userLogged)) {
+                nombreArchivoD = parametros[2].split("@")[1].split(":")[1]
+                let archD = null
+                if (nombreArchivoD == ".") {
+                  // Se debe verificar si el nombre del archivo original existe en la maquina destino
+                  archD = buscarArchivoPorMaquina(nombreArchivo, maquina)
+                  if (archD != null) {
+                  // Se verifican los permisos de escritura en el archivo destino
+                    if (comprobarPermisoPorUsuario(archD,'w',userLogged)) {
+                      archD.setPermits = arch.getPermits
+                      archD.setOwner = usuario
+                      archD.setGroup = usuario
+                      archD.setDate = crearFechaActual()
+                    } else {
+                      addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
+                    }
+                  } else {
+                    maquina.getDirectory.push(new file(arch.getName,arch.getPermits,usuario,usuario,crearFechaActual()))
+                  }
+                } else if (buscarArchivoPorMaquina(nombreArchivoD, maquina) != null) {
+                  archD = buscarArchivoPorMaquina(nombreArchivoD, maquina)
+                  // Se verifican los permisos de escritura en el archivo destino
+                  if (comprobarPermisoPorUsuario(archD,'w',userLogged)) {
+                    archD.setPermits = arch.getPermits
+                    archD.setOwner = usuario
+                    archD.setGroup = usuario
+                    archD.setDate = crearFechaActual()
+                    } else {
+                     addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
+                    }
+                } else {
+                  maquina.getDirectory.push(new file(nombreArchivoD,arch.getPermits,usuario,usuario,crearFechaActual()))
+                }
+              } else {
+                addConsola ("Actualmente no se poseen permisos de lectura sobre el archivo original" +"<br>");
+              }
+            } else {
+              addConsola ("No se reconoce el archivo: "+nombreArchivo+" en la maquina con IP: "+ ip +" por favor compruebe la informacion" +"<br>");
+            }
+          } else {
+            addConsola ("No se reconoce el usuario: "+usuario+" por favor compruebe la informacion" +"<br>");
+          }
+  
+        } else {
+          addConsola ("No se reconoce la ip: "+ip+" por favor compruebe la informacion" +"<br>");
+        }
+  
       } else {
-        addConsola ("No se reconoce la ip: "+ip+" por favor compruebe la informacion" +"<br>");
+        addConsola ("Existe un error de sintaxis con el comando scp. pruebe utilizando: scp archivo usuario@ip:archivoD \n"+
+                  "o con: scp archivo usuario@ip:. \n"+
+                  "o con: scp usuario@ip:archivo archivoD \n"+
+                  "o con: scp usuario@ip:archivo ."+"<br>");
       }
-
     } else {
-      addConsola ("Existe un error de sintaxis con el comando scp. pruebe utilizando: scp archivo usuario@ip:archivoD \n"+
-                "o con: scp archivo usuario@ip:. \n"+
-                "o con: scp usuario@ip:archivo archivoD \n"+
-                "o con: scp usuario@ip:archivo ."+"<br>");
+      addConsola ("la cantidad de parametros no coincide con el comando scp. pruebe utilizando: scp archivo usuario@ip:archivoD \n"+
+                  "o con: scp archivo usuario@ip:. \n"+
+                  "o con: scp usuario@ip:archivo archivoD \n"+
+                  "o con: scp usuario@ip:archivo ."+"<br>");
     }
   } else {
-    addConsola ("la cantidad de parametros no coincide con el comando scp. pruebe utilizando: scp archivo usuario@ip:archivoD \n"+
-                "o con: scp archivo usuario@ip:. \n"+
-                "o con: scp usuario@ip:archivo archivoD \n"+
-                "o con: scp usuario@ip:archivo ."+"<br>");
-  }
+    addConsola ("la cantidad de parametros no coincide con el comando scp. pruebe utilizando los siguentes formatos: \n"+ 
+    "scp archivo (usuario)@(ip):. \n"+
+    "scp archivo (usuario)@(ip):(archivoD) \n"+
+    "scp (usuario)@(ip):(archivo) . \n"+
+    "scp (usuario)@(ip):(archivo) (archivoD) "+"<br>");
+  } 
 }
 
 /**

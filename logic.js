@@ -591,7 +591,7 @@ function buscarDirectorio(parametros){
  * Comando ssh
  */
 function conectarAOtraMaquina(parametros){
-  if (parametros == 2) {
+  if (parametros.length == 2) {
     if (tempUser == null && tempMachine == null) {
       if (parametros[1].includes('@')) {
         let name = parametros[1].split('@')[0]
@@ -620,7 +620,7 @@ function conectarAOtraMaquina(parametros){
       addConsola ("No puede ejecutar el comando ssh porque ya esta conectado a una maquina externa"+"<br>");
     }
   } else {
-    addConsola ("la cantidad de parametros no coincide con el comando ssh. pruebe utilizando: ssh (ip)@(usuario)"+"<br>");
+    addConsola ("la cantidad de parametros no coincide con el comando ssh. pruebe utilizando: ssh (nombreUsuario)@(IP)"+"<br>");
   }
 }
 
@@ -645,7 +645,7 @@ function identificarMaquina(ip){
  * Comando exit en ssh
  */
 function salirDeSSH(parametros){
-  if (parametros == 1) {
+  if (parametros.length == 1) {
     if (tempMachine != null && tempUser != null) {
       currentMachine = tempMachine
       userLogged = tempUser

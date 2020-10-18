@@ -1,3 +1,8 @@
+/////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+/////////    Creacion de las clases   //////////////////////////
+/////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
 
 class Machine{
   constructor(name, ip, directory, users, groups){
@@ -105,19 +110,25 @@ class file{
   
 }
 
-var users1 = [new User("daniel"),new User("miguel"),new User("juan"),new User("pedro")];
-var users2 = [new User("pablo"),new User("pacho"),new User("simon"),new User("roberto")];
-var users3 = [new User("jose"),new User("ana"),new User("maria"),new User("abigail")];
-var users4 = [new User("nero"),new User("dante"),new User("vergil"),new User("trist")];
+//////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////// Creacion de las instancias de los objetos //////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////777
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
-var files1 = [new file("file1", "-rw-r-----", "daniel", "daniel", crearFechaActual()), new file("file2", "-rw-r-----", "miguel", "miguel", crearFechaActual()),
-              new file("file3", "-rw-r-----", "juan", "juan", crearFechaActual()), new file("file4", "-rw-r-----", "pedro", "pedro", crearFechaActual())]
-var files2 = [new file("file5", "-rw-r-----", "pablo", "pablo", crearFechaActual()), new file("file6", "-rw-r-----", "pacho", "pacho", crearFechaActual()), 
-              new file("file7", "-rw-r-----", "simon", "simon", crearFechaActual()), new file("file8", "-rw-r-----", "roberto", "roberto", crearFechaActual())]
-var files3 = [new file("file9", "-rw-r-----", "jose", "jose", crearFechaActual()), new file("file10", "-rw-r-----", "ana", "ana", crearFechaActual()), 
-              new file("file11", "-rw-r-----", "maria", "maria", crearFechaActual()), new file("file12", "-rw-r-----", "abigail", "abigail", crearFechaActual())]
-var files4 = [new file("file13", "-rw-r--rw-", "nero", "nero", crearFechaActual()), new file("file14", "-rw-r-----", "dante", "dante", crearFechaActual()), 
-              new file("file15", "-rw-r-----", "vergil", "vergil", crearFechaActual()), new file("file16", "-rw-r-----", "trist", "trist", crearFechaActual())]
+var users1 = [new User("daniel"),new User("miguel"),new User("juan"),new User("pedro"),new User("root")];
+var users2 = [new User("pablo"),new User("pacho"),new User("simon"),new User("roberto"),new User("root")];
+var users3 = [new User("jose"),new User("ana"),new User("maria"),new User("abigail"),new User("root")];
+var users4 = [new User("nero"),new User("dante"),new User("vergil"),new User("trist"),new User("root")];
+
+var files1 = [new file("file1", "-rw-r-----", "daniel", "daniel", "1/10/2020"), new file("file2", "-rw-r-----", "miguel", "miguel", "9/10/2020"),
+              new file("file3", "-rw-r-----", "juan", "juan", "2/10/2020"), new file("file4", "-rw-r-----", "pedro", "pedro", "10/10/2020")]
+var files2 = [new file("file5", "-rw-r-----", "pablo", "pablo", "3/10/2020"), new file("file6", "-rw-r-----", "pacho", "pacho", "11/10/2020"), 
+              new file("file7", "-rw-r-----", "simon", "simon", "4/10/2020"), new file("file8", "-rw-r-----", "roberto", "roberto", "12/10/2020")]
+var files3 = [new file("file9", "-rw-r-----", "jose", "jose", "5/10/2020"), new file("file10", "-rw-r-----", "ana", "ana", "13/10/2020"), 
+              new file("file11", "-rw-r-----", "maria", "maria", "6/10/2020"), new file("file12", "-rw-r-----", "abigail", "abigail", "14/10/2020")]
+var files4 = [new file("file13", "-rw-r--rw-", "nero", "nero", "7/10/2020"), new file("file14", "-rw-r-----", "dante", "dante", "15/10/2020"), 
+              new file("file15", "-rw-r-----", "vergil", "vergil", "8/10/2020"), new file("file16", "-rw-r-----", "trist", "trist", "16/10/2020")]
 
 var group1 = []
 var group2 = []
@@ -143,7 +154,10 @@ var mach2 = new Machine("machine2", "192.168.0.2", files2, users2, group2)
 var mach3 = new Machine("machine3", "192.168.0.3", files3, users3, group3)
 var mach4 = new Machine("machine4", "192.168.0.4", files4, users4, group4)
 
-//------------------------------------------------------------------------------------------------------------------//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//----------------------------------------Logica del simulador de terminal de linux ----------------------------------------------//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 var userLogged="";
 var rootUser=false;
 var currentMachine=mach1
@@ -200,15 +214,22 @@ function procesarComando ( comando )
 
 function verificarComandos (parametros){
     if(userLogged!=""){
+      if (parametros[0].charAt(0) == '.' && parametros[0].charAt(1) == '/') {
+        let aux = ""
+        aux = parametros[0].charAt(0) + parametros[0].charAt(1);
+        if (aux == "./") {
+          ejecutarArchivo(parametros)
+        } 
+      } else {
         switch (parametros[0]){
             case "sudo": comandoSudo(parametros);
             break;
-            case "chown": addConsola (" para usara el comando chown necesita el uso de sudo: sudo chown (nombre):(grupo archivo) <br>"); 
+            case "chown": addConsola (" para usar el comando chown necesita el uso de sudo: sudo chown (nombre):(grupo) (archivo) <br>"); 
             break;   
             case "logout": if (tempUser == null && tempMachine == null) {
                               cerrarUsuario(parametros); 
                             } else {
-                              salirDeSSH()
+                              salirDeSSH(parametros)
                             }
             break;
             case "login":  addConsola ("ya esta registrado con el usuario: "+userLogged+" <br>");
@@ -236,11 +257,7 @@ function verificarComandos (parametros){
             break;
             default: addConsola ("no se reconoce el comando "+parametros[0]+"<br>");
         }
-        let aux = ""
-        aux = parametros[0].charAt(0) + parametros[0].charAt(1);
-        if (aux == "./") {
-          ejecutarArchivo(parametros)
-        } 
+      }
     }else{
         if(parametros[0]=="login"){
                iniciarUsuario(parametros);
@@ -303,12 +320,14 @@ function crearArchivo(parametros){
       if (comprobarPermiso(fileAux, 'w')) {
         let f1 = new file(parametros[1], "-rw-r-----", userLogged, userLogged, crearFechaActual())
         currentMachine.getDirectory[pos] = f1
+        addConsola ("El archivo a sido sobrescrito con exito"+"<br>");
       } else {
         addConsola ("El usuario "+ userLogged +" no posee permisos de escritura sobre el archivo."+"<br>");
       }
     } else {
       let f2 = new file(parametros[1], "-rw-r-----", userLogged, userLogged, crearFechaActual())
       currentMachine.getDirectory.push(f2)
+      addConsola ("El archivo a sido creado con exito"+"<br>");
     }
 
   }
@@ -345,6 +364,10 @@ function buscarGrupoDeUsuario(name){
  * Dado el objeto file y un char 'r''w''x', retorna true o false si tiene o no el permiso
  */
 function comprobarPermiso(file, permiso){
+  if (userLogged == "root") {
+    return true
+  }
+
   let p1, p2, p3
   if(permiso == 'r') {
     p1 = 1, p2 = 4, p3 = 7
@@ -478,7 +501,7 @@ function borrarContenido(parametros){
  * Comando ./archivo
  */
 function ejecutarArchivo(parametros){
-  if (parametros.length == 2) {
+  if (parametros.length == 1) {
     let aux = parametros[0].split("/")[1]
   for (let i = 0; i < currentMachine.getDirectory.length; i++) {
     if (currentMachine.getDirectory[i].getName == aux) {
@@ -544,7 +567,7 @@ function cambiarPropietarios(parametros){
                     addConsola ("no se puede detectar el nombre y el grupo de manera correcta. pruebe utilizando: sudo chown (nombre):(grupo) (archivo)"+"<br>");            
 				}
             }else{
-                 addConsola ("debe especificar el nombre, el grupo y el archivo a modificar. pruebe utilizando: sudo chown (nombre):(grupo) (archivo)"+"<br>");
+                 addConsola ("la cantidad de parametros no coincide con el comando chown. pruebe utilizando: sudo chown (nombre):(grupo) (archivo)"+"<br>");
 			}
 		}else{
              addConsola ("la cantidad de parametros no coincide con el comando chown. pruebe utilizando: sudo chown (nombre):(grupo) (archivo)"+"<br>");
@@ -786,11 +809,13 @@ function copiarArchivo(parametros){
                     archD.setOwner = usuario
                     archD.setGroup = usuario
                     archD.setDate = crearFechaActual()
+                    addConsola ("El envio del archivo fue exitoso" +"<br>");
                     } else {
                       addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
                     }
                   } else {
                     currentMachine.getDirectory.push(new file(arch.getName,arch.getPermits,usuario,usuario,crearFechaActual()))
+                    addConsola ("El envio del archivo fue exitoso" +"<br>");
                   }
                 } else if (buscarArchivoPorMaquina(nombreArchivoD, currentMachine) != null) {
                   archD = buscarArchivoPorMaquina(nombreArchivoD, currentMachine)
@@ -800,11 +825,13 @@ function copiarArchivo(parametros){
                     archD.setOwner = usuario
                     archD.setGroup = usuario
                     archD.setDate = crearFechaActual()
+                    addConsola ("El envio del archivo fue exitoso" +"<br>");
                     } else {
                      addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
                     }
                 } else {
                   currentMachine.getDirectory.push(new file(nombreArchivoD,arch.getPermits,usuario,usuario,crearFechaActual()))
+                  addConsola ("El envio del archivo fue exitoso" +"<br>");
                 } 
               } else {
                 addConsola ("Actualmente no se poseen permisos de lectura sobre el archivo original" +"<br>");
@@ -854,11 +881,13 @@ function copiarArchivo(parametros){
                       archD.setOwner = usuario
                       archD.setGroup = usuario
                       archD.setDate = crearFechaActual()
+                      addConsola ("El envio del archivo fue exitoso" +"<br>");
                     } else {
                       addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
                     }
                   } else {
                     maquina.getDirectory.push(new file(arch.getName,arch.getPermits,usuario,usuario,crearFechaActual()))
+                    addConsola ("El envio del archivo fue exitoso" +"<br>");
                   }
                 } else if (buscarArchivoPorMaquina(nombreArchivoD, maquina) != null) {
                   archD = buscarArchivoPorMaquina(nombreArchivoD, maquina)
@@ -868,11 +897,13 @@ function copiarArchivo(parametros){
                     archD.setOwner = usuario
                     archD.setGroup = usuario
                     archD.setDate = crearFechaActual()
+                    addConsola ("El envio del archivo fue exitoso" +"<br>");
                     } else {
                      addConsola ("Actualmente no se poseen permisos de escritura sobre el archivo destino" +"<br>");
                     }
                 } else {
                   maquina.getDirectory.push(new file(nombreArchivoD,arch.getPermits,usuario,usuario,crearFechaActual()))
+                  addConsola ("El envio del archivo fue exitoso" +"<br>");
                 }
               } else {
                 addConsola ("Actualmente no se poseen permisos de lectura sobre el archivo original" +"<br>");
@@ -937,6 +968,10 @@ function buscarArchivoPorMaquina(nombre, maq){
  * Dado el archivo, permiso y el usuario, comprueba si este tiene el permiso en ese archivo
  */
 function comprobarPermisoPorUsuario(file, permiso, user){
+  if (userLogged == "root") {
+    return true
+  }
+
   let p1, p2, p3
   if(permiso == 'r') {
     p1 = 1, p2 = 4, p3 = 7
